@@ -1,17 +1,17 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "traversable/version"
+require "traverse/version"
 
 Gem::Specification.new do |s|
-  s.name        = "traversable"
-  s.version     = Traversable::VERSION
+  s.name        = "traverse"
+  s.version     = Traverse::VERSION
   s.authors     = ["happy4crazy"]
   s.email       = ["alan.m.odonnell@gmail.com"]
-  s.homepage    = "https://github.com/happy4crazy/traversable"
+  s.homepage    = "https://github.com/happy4crazy/traverse"
   s.summary     = %q{Easily traverse an XML document.}
   s.description = %q{Easily traverse an XML document.}
 
-  s.rubyforge_project = "traversable"
+  s.rubyforge_project = "traverse"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

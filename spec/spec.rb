@@ -1,5 +1,5 @@
 $:.push '../'
-require 'traversable'
+require 'traverse'
 
 gem 'minitest'
 require 'minitest/autorun'
@@ -51,9 +51,9 @@ xml = %{
   </book>
 }
 
-describe Traversable::Document do
+describe Traverse::Document do
   before do
-    @doc = Traversable::Document.new xml
+    @doc = Traverse::Document.new xml
   end
 
   it "helps you access attributes" do

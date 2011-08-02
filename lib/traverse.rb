@@ -1,8 +1,8 @@
-require "traversable/version"
+require "traverse/version"
 require 'nokogiri'
 require 'open-uri'
 
-module Traversable
+module Traverse
   class Document
     def initialize document
       if document.is_a? String
