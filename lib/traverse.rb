@@ -1,46 +1,46 @@
 require "traverse/version"
 require 'nokogiri'
 require 'open-uri'
+require 'active_support/inflector'
 
 module Traverse
   class Document
     def initialize document
-      if document.is_a? String
-        begin
-          @document = Nokogiri::XML(document)
-        rescue
-          return nil
-        end
-      else
-        @document = document
-      end
+      setup_underlying_document document
 
       if text_node?
         define_singleton_method "text" do
           @document.children.first.content
         end
-      else
-        @document.children.reject do |child|
-          child.is_a? Nokogiri::XML::Text
-        end.group_by(&:name).each do |name, children|
-          if children.count == 1
-            define_singleton_method "#{name}" do 
-              Document.new children.first
-            end
-          else
-            define_singleton_method "#{name}s" do
-              children.map { |child| Document.new child }
-            end
+      end
+
+      singular_children.group_by(&:name).each do |name, children|
+        if children.count == 1
+          define_singleton_method name do 
+            Document.new children.first
+          end
+        else
+          define_singleton_method name.pluralize do
+            children.map { |child| Document.new child }
           end
         end
       end
+
+      plural_children.each do |pluralized_child|
+        define_singleton_method pluralized_child.name do
+          pluralized_child.children.reject do |baby|
+            baby.class == Nokogiri::XML::Text
+          end.map { |child| Document.new child }
+        end
+      end
+
     end
 
     def [] attr
       @document.get_attribute attr
     end
 
-    private
+    #private
       def method_missing m, *args, &block
         self[m] or super
       end
@@ -50,6 +50,54 @@ module Traverse
         return false unless num_children == 1
 
         @document.children.first.is_a? Nokogiri::XML::Text
+      end
+
+      def real_children
+        @document.children.reject do |child|
+          child.is_a? Nokogiri::XML::Text
+        end
+      end
+
+      def singular_children
+        real_children.select do |child|
+          child.children.any? do |baby|
+            if baby.class == Nokogiri::XML::Text
+              false # ignore text children
+            else
+              baby.name != child.name.singularize
+            end
+          end or child.children.all? do |baby|
+            baby.class == Nokogiri::XML::Text
+          end
+        end
+      end
+
+      def plural_children
+        real_children.select do |child|
+          child.children.all? do |baby|
+            if baby.class == Nokogiri::XML::Text
+              true
+            else
+              baby.name == child.name.singularize
+            end
+          end and child.children.count > 1
+        end
+      end
+
+      def setup_underlying_document document
+        if document.is_a? String
+          begin
+            @document = Nokogiri::XML(document)
+          rescue
+            return nil
+          end
+        else
+          @document = document
+        end
+      end
+
+      def to_s
+        "<Traversable... >"
       end
   end
 

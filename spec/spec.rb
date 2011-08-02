@@ -88,4 +88,9 @@ describe Traverse::Document do
   it "knows to collect children with the same name" do
     @doc.book.author.books.count.must_equal 8
   end
+
+  it "knows to collect children of a pluralized parent" do
+    @doc.book.quotations.count.must_equal 2
+    @doc.book.quotations.last.text.must_match(/more like an idiot savant/)
+  end
 end
