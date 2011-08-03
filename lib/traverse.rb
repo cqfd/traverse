@@ -53,17 +53,20 @@ module Traverse
       @document.get_attribute attr
     end
 
+    def attributes
+      name_value_pairs = @document.attributes.map do |name, attribute|
+        [name, attribute.value]
+      end
+      Hash[ name_value_pairs ]
+    end
+
+    def children
+      real_children.map { |child| Document.new child }
+    end
+
     private
       def method_missing m, *args, &block
         self[m] or super
-      end
-
-      def attributes
-        if @document.is_a? Nokogiri::XML::Document
-          []
-        else
-          @document.attributes
-        end
       end
 
       def text_node?
@@ -114,10 +117,22 @@ module Traverse
       def setup_underlying_document document
         if document.is_a? String
           begin
-            @document = Nokogiri::XML(document)
+            @document = Nokogiri::XML(document).children.find do |child|
+              !child.comment?
+            end
           rescue
             return nil
           end
+        elsif document.respond_to? :read
+          begin
+            @document = Nokogiri::XML(document.read).children.find do |child|
+              !child.comment?
+            end
+          rescue
+            nil
+          end
+        elsif document.is_a? Nokogiri::XML::Document
+          @document = document.children.first
         else
           @document = document
         end
