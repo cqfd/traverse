@@ -16,12 +16,25 @@ module Traverse
 
       singular_children.group_by(&:name).each do |name, children|
         if children.count == 1
-          define_singleton_method name do 
-            Document.new children.first
+          child = children.first
+          if text_only_node? child
+            define_singleton_method name do
+              child.content.strip
+            end
+          else
+            define_singleton_method name do 
+              Document.new child
+            end
           end
         else
           define_singleton_method name.pluralize do
-            children.map { |child| Document.new child }
+            children.map do |child|
+              if text_only_node? child
+                child.content.strip
+              else
+                Document.new child
+              end
+            end
           end
         end
       end
@@ -40,9 +53,17 @@ module Traverse
       @document.get_attribute attr
     end
 
-    #private
+    private
       def method_missing m, *args, &block
         self[m] or super
+      end
+
+      def attributes
+        if @document.is_a? Nokogiri::XML::Document
+          []
+        else
+          @document.attributes
+        end
       end
 
       def text_node?
@@ -50,6 +71,12 @@ module Traverse
         return false unless num_children == 1
 
         @document.children.first.is_a? Nokogiri::XML::Text
+      end
+
+      def text_only_node? node
+        node.children.all? do |child|
+          child.is_a? Nokogiri::XML::Text
+        end and node.attributes.empty?
       end
 
       def real_children

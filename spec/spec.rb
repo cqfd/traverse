@@ -8,14 +8,14 @@ require 'minitest/pride'
 xml = %{
   <book title="Vineland" author="Thomas Pynchon">
     <author name="Thomas Pynchon">
-      <book title="V" />
-      <book title="The Crying of Lot 49" />
-      <book title="Gravity's Rainbow" />
-      <book title="Slow Learner" />
-      <book title="Vineland" />
-      <book title="Mason &amp; Dixon" />
-      <book title="Against the Day" />
-      <book title="Inherent Vice" />
+      <book> V </book>
+      <book> The Crying of Lot 49 </book>
+      <book> Gravity's Rainbow" </book>
+      <book> Slow Learner" </book>
+      <book> Vineland </book>
+      <book> Mason &amp; Dixon </book>
+      <book> Against the Day </book>
+      <book> Inherent Vice </book>
     </author>
     <epigraph author="Johnny Copeland">
       Every dog has his day,
@@ -45,6 +45,9 @@ xml = %{
       America has been doing to itself, to its children, all these many
       years.
     </review>
+    <pagecount>
+      385
+    </pagecount>
     <text text="seriously, who writes XML like this">
       I mean, rilly.
     </text>
@@ -85,8 +88,15 @@ describe Traverse::Document do
     @doc.book.text.text.must_match(/rilly/)
   end
 
+  it "knows when a node has only text and no attributes" do
+    @doc.book.pagecount.must_equal "385"
+  end
+
   it "knows to collect children with the same name" do
     @doc.book.author.books.count.must_equal 8
+    assert @doc.book.author.books.all? do |book|
+      book.is_a? String
+    end
   end
 
   it "knows to collect children of a pluralized parent" do
