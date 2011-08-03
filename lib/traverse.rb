@@ -54,14 +54,10 @@ module Traverse
     end
 
     def attributes
-      if @document.is_a? Nokogiri::XML::Document
-        {}
-      else
-        name_value_pairs = @document.attributes.map do |name, attribute|
-          [name, attribute.value]
-        end
-        Hash[ name_value_pairs ]
+      name_value_pairs = @document.attributes.map do |name, attribute|
+        [name, attribute.value]
       end
+      Hash[ name_value_pairs ]
     end
 
     def children
@@ -121,10 +117,22 @@ module Traverse
       def setup_underlying_document document
         if document.is_a? String
           begin
-            @document = Nokogiri::XML(document)
+            @document = Nokogiri::XML(document).children.find do |child|
+              !child.comment?
+            end
           rescue
             return nil
           end
+        elsif document.respond_to? :read
+          begin
+            @document = Nokogiri::XML(document.read).children.find do |child|
+              !child.comment?
+            end
+          rescue
+            nil
+          end
+        elsif document.is_a? Nokogiri::XML::Document
+          @document = document.children.first
         else
           @document = document
         end

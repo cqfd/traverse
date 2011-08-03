@@ -56,29 +56,29 @@ xml = %{
 
 describe Traverse::Document do
   before do
-    @doc = Traverse::Document.new xml
+    @book = Traverse::Document.new xml
   end
 
   it "helps you access attributes" do
-    @doc.book.title.must_equal "Vineland"
+    @book.title.must_equal "Vineland"
   end
 
   it "also helps you access attributes shadowed by children" do
-    @doc.book.author.wont_equal "Thomas Pynchon"
-    @doc.book['author'].must_equal "Thomas Pynchon"
-    @doc.book.author.name.must_equal "Thomas Pynchon"
+    @book.author.wont_equal "Thomas Pynchon"
+    @book['author'].must_equal "Thomas Pynchon"
+    @book.author.name.must_equal "Thomas Pynchon"
   end
 
-  describe "Support for the Enumerable module" do
+  describe "support for enumerable" do
 
     it "gives you access to the current node's attributes" do
-      @doc.book.attributes.any? do |name, value|
+      @book.attributes.any? do |name, value|
         value == "Vineland"
       end.must_equal true
     end
 
     it "gives you access to the current node's children as traversable documents" do
-      assert @doc.book.children.any? do |child|
+      assert @book.children.any? do |child|
         child.attributes.any? do |name, value|
           name == "reviewer" and value == "Salman Rushdie"
         end
@@ -88,37 +88,37 @@ describe Traverse::Document do
   end
 
   it "helps you traverse to child nodes" do
-    @doc.book.review.reviewer.must_equal "Salman Rushdie"
-    @doc.book.epigraph.author.must_equal "Johnny Copeland"
+    @book.review.reviewer.must_equal "Salman Rushdie"
+    @book.epigraph.author.must_equal "Johnny Copeland"
   end
 
   it "knows when a node contains only text" do
-    assert @doc.book.epigraph.send(:text_node?)
+    assert @book.epigraph.send(:text_node?)
   end
 
   it "handles annoying text nodes transparently" do
-    @doc.book.epigraph.text.must_match(/Every dog has his day/)
-    @doc.book.review.text.must_match(/that rarest of birds/)
+    @book.epigraph.text.must_match(/Every dog has his day/)
+    @book.review.text.must_match(/that rarest of birds/)
   end
 
   it "nevertheless handles attributes named 'text'" do
-    @doc.book.text['text'].must_match(/seriously/)
-    @doc.book.text.text.must_match(/rilly/)
+    @book.text['text'].must_match(/seriously/)
+    @book.text.text.must_match(/rilly/)
   end
 
   it "knows when a node has only text and no attributes" do
-    @doc.book.pagecount.must_equal "385"
+    @book.pagecount.must_equal "385"
   end
 
   it "knows to collect children with the same name" do
-    @doc.book.author.books.count.must_equal 8
-    assert @doc.book.author.books.all? do |book|
+    @book.author.books.count.must_equal 8
+    assert @book.author.books.all? do |book|
       book.is_a? String
     end
   end
 
   it "knows to collect children of a pluralized parent" do
-    @doc.book.quotations.count.must_equal 2
-    @doc.book.quotations.last.text.must_match(/more like an idiot savant/)
+    @book.quotations.count.must_equal 2
+    @book.quotations.last.text.must_match(/more like an idiot savant/)
   end
 end
