@@ -53,17 +53,24 @@ module Traverse
       @document.get_attribute attr
     end
 
+    def attributes
+      if @document.is_a? Nokogiri::XML::Document
+        {}
+      else
+        name_value_pairs = @document.attributes.map do |name, attribute|
+          [name, attribute.value]
+        end
+        Hash[ name_value_pairs ]
+      end
+    end
+
+    def children
+      real_children.map { |child| Document.new child }
+    end
+
     private
       def method_missing m, *args, &block
         self[m] or super
-      end
-
-      def attributes
-        if @document.is_a? Nokogiri::XML::Document
-          []
-        else
-          @document.attributes
-        end
       end
 
       def text_node?

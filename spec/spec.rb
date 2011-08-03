@@ -69,7 +69,25 @@ describe Traverse::Document do
     @doc.book.author.name.must_equal "Thomas Pynchon"
   end
 
-  it "helps you get at child nodes" do
+  describe "Support for the Enumerable module" do
+
+    it "gives you access to the current node's attributes" do
+      @doc.book.attributes.any? do |name, value|
+        value == "Vineland"
+      end.must_equal true
+    end
+
+    it "gives you access to the current node's children as traversable documents" do
+      assert @doc.book.children.any? do |child|
+        child.attributes.any? do |name, value|
+          name == "reviewer" and value == "Salman Rushdie"
+        end
+      end
+    end
+
+  end
+
+  it "helps you traverse to child nodes" do
     @doc.book.review.reviewer.must_equal "Salman Rushdie"
     @doc.book.epigraph.author.must_equal "Johnny Copeland"
   end
