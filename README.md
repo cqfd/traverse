@@ -8,6 +8,7 @@ Traverse let's you do things like this:
  
 ```ruby
 timeline = Traverse::Document.new(open "http://api.twitter.com/statuses/public_timeline.xml")
+
 timeline.statuses.each do |status|
   puts "#{status.user.name} says: #{status.text}"
 end
@@ -24,10 +25,13 @@ boxscore = Traverse::Document.new(open url)
 # let's start traversing!
 
 boxscore.game_id # => '2011/03/31/detmlb-nyamlb-1'
+
 boxscore.battings[0].batters[1].name_display_first_last # => 'Derek Jeter'
+
 boxscore.battings[0].batters.select do |batter|
   batter.rbi.to_i > 0
 end.count # => 4
+
 boxscore.pitchings.find do |pitching|
   pitching.team_flag == 'away'
 end.out # => '24'
