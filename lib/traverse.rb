@@ -70,10 +70,9 @@ module Traverse
       end
 
       def text_node?
-        num_children = @document.children.count
-        return false unless num_children == 1
-
-        @document.children.first.is_a? Nokogiri::XML::Text
+        @document.children.all? do |child|
+          child.is_a? Nokogiri::XML::Text
+        end
       end
 
       def text_only_node? node
@@ -106,7 +105,7 @@ module Traverse
         real_children.select do |child|
           child.children.all? do |baby|
             if baby.class == Nokogiri::XML::Text
-              true
+              true # ignore text children
             else
               baby.name == child.name.singularize
             end
@@ -114,25 +113,29 @@ module Traverse
         end
       end
 
+      def find_first_non_comment_node xml_string
+        Nokogiri::XML(xml_string).children.find do |child|
+          !child.comment?
+        end
+      end
+
       def setup_underlying_document document
         if document.is_a? String
           begin
-            @document = Nokogiri::XML(document).children.find do |child|
-              !child.comment?
-            end
+            @document = find_first_non_comment_node document
           rescue
-            return nil
+            nil
           end
-        elsif document.respond_to? :read
+        elsif document.respond_to? :read # is it file-like...
           begin
-            @document = Nokogiri::XML(document.read).children.find do |child|
-              !child.comment?
-            end
+            @document = find_first_non_comment_node document.read
           rescue
             nil
           end
         elsif document.is_a? Nokogiri::XML::Document
-          @document = document.children.first
+          @document = document.children.find do |child|
+            !child.comment?
+          end
         else
           @document = document
         end
