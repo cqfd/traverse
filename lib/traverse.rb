@@ -142,18 +142,4 @@ module Traverse
         "<Traversable... >"
       end
   end
-
-  module Proxy
-    private
-      def proxy *args
-        if args.empty?
-          @proxy
-        else
-          @proxy = args.first
-          def method_missing m
-            @proxy.send m
-          end
-        end
-      end
-  end
 end
