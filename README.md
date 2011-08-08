@@ -93,7 +93,7 @@ foo.bars.first # => the first bar
 This won't work if the pluralized parent node has attributes or if its children
 aren't all singularized versions of itself! Twitter's timeline is an example;
 the parent node's name is `statuses`, and its children are all named
-`timeline`, but the `statuses` node has an attribute.
+`status`, but the `statuses` node has an attribute.
 
 ### Attributes
 
