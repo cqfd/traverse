@@ -1,6 +1,5 @@
 require "traverse/version"
 require 'nokogiri'
-require 'open-uri'
 require 'active_support/inflector'
 
 module Traverse
