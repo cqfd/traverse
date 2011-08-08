@@ -59,18 +59,57 @@ describe Traverse::Document do
     @book = Traverse::Document.new xml
   end
 
-  it "helps you access attributes" do
-    @book.title.must_equal "Vineland"
+  describe "Grabbing attributes" do
+    it "helps you access attributes" do
+      @book.title.must_equal "Vineland"
+    end
+
+    it "also lets you access attributes shadowed by children" do
+      @book.author.wont_equal "Thomas Pynchon"
+      @book.author.class.wont_equal String
+
+      @book['author'].must_equal "Thomas Pynchon"
+    end
   end
 
-  it "also helps you access attributes shadowed by children" do
-    @book.author.wont_equal "Thomas Pynchon"
-    @book['author'].must_equal "Thomas Pynchon"
-    @book.author.name.must_equal "Thomas Pynchon"
+  describe "Traversing to children" do
+    it "helps you traverse to child nodes" do
+      @book.review.reviewer.must_equal "Salman Rushdie"
+      @book.epigraph.author.must_equal "Johnny Copeland"
+    end
+
+    it "knows to collect children with the same name" do
+      @book.author.books.class.must_equal Array
+      @book.author.books.count.must_equal 8
+      assert @book.author.books.all? do |book|
+        book.is_a? String
+      end
+    end
+
+    it "knows to collect singularized children of a pluralized parent" do
+      @book.quotations.count.must_equal 2
+      @book.quotations.last.text.must_match(/more like an idiot savant/)
+    end
   end
 
-  describe "support for enumerable" do
+  describe "Dealing with text nodes" do
+    it "handles annoying text nodes transparently" do
+      @book.epigraph.text.must_match(/Every dog has his day/)
+      @book.review.text.must_match(/that rarest of birds/)
+    end
 
+    it "nevertheless handles attributes named 'text'" do
+      @book.text['text'].must_match(/seriously/)
+      @book.text.text.must_match(/rilly/)
+    end
+
+    it "handles nodes with only text and no attributes" do
+      @book.pagecount.must_equal "385"
+    end
+  end
+
+
+  describe "Support for enumerable" do
     it "gives you access to the current node's attributes" do
       @book.attributes.any? do |name, value|
         value == "Vineland"
@@ -85,40 +124,5 @@ describe Traverse::Document do
       end
     end
 
-  end
-
-  it "helps you traverse to child nodes" do
-    @book.review.reviewer.must_equal "Salman Rushdie"
-    @book.epigraph.author.must_equal "Johnny Copeland"
-  end
-
-  it "knows when a node contains only text" do
-    assert @book.epigraph.send(:text_node?)
-  end
-
-  it "handles annoying text nodes transparently" do
-    @book.epigraph.text.must_match(/Every dog has his day/)
-    @book.review.text.must_match(/that rarest of birds/)
-  end
-
-  it "nevertheless handles attributes named 'text'" do
-    @book.text['text'].must_match(/seriously/)
-    @book.text.text.must_match(/rilly/)
-  end
-
-  it "knows when a node has only text and no attributes" do
-    @book.pagecount.must_equal "385"
-  end
-
-  it "knows to collect children with the same name" do
-    @book.author.books.count.must_equal 8
-    assert @book.author.books.all? do |book|
-      book.is_a? String
-    end
-  end
-
-  it "knows to collect children of a pluralized parent" do
-    @book.quotations.count.must_equal 2
-    @book.quotations.last.text.must_match(/more like an idiot savant/)
   end
 end
