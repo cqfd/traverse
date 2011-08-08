@@ -1,8 +1,10 @@
-## Installation
+# Traverse
 
 ```bash
 gem install traverse
 ```
+
+## Introduction
 
 Traverse is a simple tool that makes it easy to traverse XML. 
 
