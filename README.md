@@ -69,18 +69,25 @@ foo.bars # => an array containing all of the bars
 foo.bars.first # => grab the first bar
 ```
 
-Traverse will also try to transparently collect nodes of the form
+Traverse will also do its best to transparently collect singularly-named nodes
+inside of pluralized parents. Example:
 
 ```xml
-<bars>
-  <bar ...>
+<foo>
+  <bars>
+    <bar ...>
+      ...
+    </bar>
     ...
-  </bar>
-  ...
-  <bar ...>
-    ...
-  </bar>
-</bars>
+    <bar ...>
+      ...
+    </bar>
+  </bars>
+</foo>
+```
+```ruby
+foo.bars # => an array of all of the bars
+foo.bars.first # => the first bar
 ```
 
 ### Attributes
