@@ -144,4 +144,43 @@ module Traverse
         "<Traversable... >"
       end
   end
+  class JSON
+    def initialize json
+      setup_underlying_json json
+      puts "#{@json}"
+      @json.each_pair do |k,v|
+        define_singleton_method k do
+          if v.is_a? Hash
+            JSON.new(v)
+          elsif v.is_a? Array
+            v.map { |i| JSON.new(i) }
+          else
+            v
+          end
+        end
+        define_singleton_method "_keys" do
+          @json.keys
+        end
+      end
+    end
+
+    private
+      def method_missing m, *args, &block
+        self[m] or super
+      end
+      
+      def setup_underlying_json document
+        if document.respond_to? :read # Tempfile / StringIO
+          begin
+            parser = Yajl::Parser.new
+            @json = parser.parse(document)
+          rescue
+            nil
+          end
+        else
+          @json = document
+        end
+      end
+  end
+
 end
