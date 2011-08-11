@@ -35,6 +35,19 @@ search.tracks.each do |track|
 end
 ```
 
+### _keys_ & _length_
+Traverse provides custom methods to help with traversal.
+
+If you are traversing a hash: ```_keys_``` will be available. The method ```_length_``` will always be available.
+
+```ruby
+search._length_
+# =>  20
+
+search.first._keys_
+# =>  ["user","favorited","source","id","text","created_at"]
+```
+
 ### Examples
 
 For a slightly more complicated example, take a look at a
