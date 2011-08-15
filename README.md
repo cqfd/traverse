@@ -6,7 +6,9 @@ gem install traverse
 
 ## Introduction
 
-Traverse is a simple tool that makes it easy to traverse XML. 
+Traverse is a simple tool that makes it easy to traverse XML & JSON. 
+
+### XML
 
 Let's say you're messing around with Twitter's
 [public timeline](http://api.twitter.com/statuses/public_timeline.xml).
@@ -19,6 +21,34 @@ timeline.statuses.each do |status|
   puts "#{status.user.name} says: #{status.text}"
 end
 ```
+
+### JSON
+Let's say you're foolin' with [Spotify's Search API](http://ws.spotify.com/search/1/track.json?q=like+a+virgin).
+Traverse makes it easy to do super cool things:
+
+```ruby
+search = Traverse::JSON.new(open "http://ws.spotify.com/search/1/track.json?q=like+a+virgin")
+
+search.tracks.each do |track|
+  puts "Track: #{track.name}"
+  puts "Album: #{track.album.name}"
+end
+```
+
+### _keys_ & _length_
+Traverse provides custom methods to help with traversal.
+
+If you are traversing a hash: ```_keys_``` will be available. The method ```_length_``` will always be available.
+
+```ruby
+search._length_
+# =>  20
+
+search.first._keys_
+# =>  ["user","favorited","source","id","text","created_at"]
+```
+
+### Examples
 
 For a slightly more complicated example, take a look at a
 [boxscore](http://gd2.mlb.com/components/game/mlb/year_2011/month_03/day_31/gid_2011_03_31_detmlb_nyamlb_1/boxscore.xml)
