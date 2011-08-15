@@ -145,29 +145,43 @@ module Traverse
         "<Traversable... >"
       end
   end
+
   class JSON
+
     def initialize json
+
       setup_underlying_json json
-      puts "#{@json}"
-      @json.each_pair do |k,v|
-        define_singleton_method k do
-          if v.is_a? Hash
-            JSON.new(v)
-          elsif v.is_a? Array
-            v.map { |i| JSON.new(i) }
-          else
-            v
+      
+      if @json.is_a? Hash
+        @json.each_pair do |k,v|
+
+          define_singleton_method "_#{k}" do
+            if v.is_a? Hash
+              JSON.new v
+            elsif v.is_a? Array
+              v.map{ |i| JSON.new i }
+            else
+              v
+            end
           end
         end
-        define_singleton_method "_keys" do
+        # _keys_
+        define_singleton_method "_keys_" do
           @json.keys
         end
+      elsif @json.is_a? Array
+        @json.map! { |i| JSON.new i }
+      end
+      # _length_
+      define_singleton_method "_length_" do
+        @json.length
       end
     end
 
     private
+      # Overload method_missing, pass method to super
       def method_missing m, *args, &block
-        self[m] or super
+        @json.send m, *args, &block
       end
       
       def setup_underlying_json document
@@ -182,6 +196,5 @@ module Traverse
           @json = document
         end
       end
-  end
-
+  end # JSON
 end
