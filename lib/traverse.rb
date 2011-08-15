@@ -1,10 +1,54 @@
 require "traverse/version"
 require 'nokogiri'
+require 'yajl'
 require 'active_support/inflector'
 require 'yajl'
 
 module Traverse
   class Document
+    def initialize document
+      if xml? document
+        @proxy = XML.new document
+      elsif json? document
+        @proxy = JSON.new document
+      end
+    end
+
+    private
+      def method_missing m, *args, &block
+        @proxy.send m, *args, &block
+      end
+
+      def xml? document
+        begin
+          Nokogiri::XML(document) do |config|
+            config.options = Nokogiri::XML::ParseOptions::STRICT
+          end
+          true
+        rescue Nokogiri::XML::SyntaxError
+          false
+        ensure
+          document.rewind if document.respond_to? :read
+        end
+      end
+
+      def json? document
+        begin
+          Yajl::Parser.new.parse(document)
+          true
+        rescue Yajl::ParseError
+          false
+        ensure
+          document.rewind if document.respond_to? :read
+        end
+      end
+
+      def to_s
+        "<Traverse::Document...>"
+      end
+  end
+
+  class XML
     def initialize document
       setup_underlying_document document
 
@@ -23,7 +67,7 @@ module Traverse
             end
           else
             define_singleton_method name do 
-              Document.new child
+              XML.new child
             end
           end
         else
@@ -32,7 +76,7 @@ module Traverse
               if text_only_node? child
                 child.content.strip
               else
-                Document.new child
+                XML.new child
               end
             end
           end
@@ -43,7 +87,7 @@ module Traverse
         define_singleton_method pluralized_child.name do
           pluralized_child.children.reject do |baby|
             baby.class == Nokogiri::XML::Text
-          end.map { |child| Document.new child }
+          end.map { |child| XML.new child }
         end
       end
 
@@ -61,7 +105,7 @@ module Traverse
     end
 
     def children
-      real_children.map { |child| Document.new child }
+      real_children.map { |child| XML.new child }
     end
 
     private
@@ -151,23 +195,25 @@ module Traverse
     def initialize json
 
       setup_underlying_json json
-      
-      if @json.is_a? Hash
-        @json.each_pair do |k,v|
 
-          define_singleton_method "_#{k}" do
+      if @json.is_a? Array
+        @proxy = @json.map do |item|
+          JSON.new item
+        end
+      elsif @json.is_a? Hash
+        @json.each_pair do |k,v|
+          define_singleton_method k do
             if v.is_a? Hash
-              JSON.new v
+              JSON.new(v)
             elsif v.is_a? Array
-              v.map{ |i| JSON.new i }
+              v.map { |i| JSON.new(i) }
             else
               v
             end
           end
-        end
-        # _keys_
-        define_singleton_method "_keys_" do
-          @json.keys
+          define_singleton_method "_keys_" do
+            @json.keys
+          end
         end
       elsif @json.is_a? Array
         @json.map! { |i| JSON.new i }
@@ -181,20 +227,28 @@ module Traverse
     private
       # Overload method_missing, pass method to super
       def method_missing m, *args, &block
-        @json.send m, *args, &block
+        if @proxy
+          @proxy.send m, *args, &block
+        else
+          super
+        end
       end
       
       def setup_underlying_json document
-        if document.respond_to? :read # Tempfile / StringIO
+        if document.is_a? String
+          @json = Yajl::Parser.new.parse document
+        elsif document.respond_to? :read # Tempfile / StringIO
           begin
             parser = Yajl::Parser.new
             @json = parser.parse(document)
           rescue
             nil
+          ensure
+            document.rewind
           end
-        else
+        elsif document.is_a? Hash
           @json = document
         end
       end
-  end # JSON
+  end
 end
