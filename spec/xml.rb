@@ -1,4 +1,3 @@
-$:.push '../'
 require 'traverse'
 
 gem 'minitest'
@@ -38,7 +37,7 @@ xml = %{
         expert. Not a genius, exactly, more like an idiot savant with X-ray
         vision.
       </quotation>
-    </quotes>
+    </quotations>
     <review reviewer="Salman Rushdie">
       What is interesting is to have before us, at the end of the Greed
       Decade, that rarest of birds: a major political novel about what
@@ -123,6 +122,6 @@ describe Traverse::Document do
         end
       end
     end
-
   end
+
 end
