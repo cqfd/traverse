@@ -218,10 +218,6 @@ module Traverse
       elsif @json.is_a? Array
         @json.map! { |i| JSON.new i }
       end
-
-      define_singleton_method "_length_" do
-        @json.length
-      end
     end
 
     private
