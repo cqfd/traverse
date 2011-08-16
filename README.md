@@ -35,13 +35,13 @@ search.tracks.each do |track|
 end
 ```
 
-### _keys_ & _length_
-Traverse provides custom methods to help with traversal.
+### Helper methods
+Traverse provides a few helper methods to help with traversal.
 
-If you are traversing a hash: ```_keys_``` will be available. The method ```_length_``` will always be available.
+If you are traversing some JSON, ```_keys_``` will be available.
 
 ```ruby
-search._length_
+search._keys_.count
 # =>  20
 
 search.first._keys_
