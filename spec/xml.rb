@@ -110,13 +110,13 @@ describe Traverse::Document do
 
   describe "Support for enumerable" do
     it "gives you access to the current node's attributes" do
-      @book.attributes.any? do |name, value|
+      @book._attributes_.any? do |name, value|
         value == "Vineland"
       end.must_equal true
     end
 
     it "gives you access to the current node's children as traversable documents" do
-      assert @book.children.any? do |child|
+      assert @book._children_.any? do |child|
         child.attributes.any? do |name, value|
           name == "reviewer" and value == "Salman Rushdie"
         end

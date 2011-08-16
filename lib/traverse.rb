@@ -97,14 +97,14 @@ module Traverse
       @document.get_attribute attr
     end
 
-    def attributes
+    def _attributes_
       name_value_pairs = @document.attributes.map do |name, attribute|
         [name, attribute.value]
       end
       Hash[ name_value_pairs ]
     end
 
-    def children
+    def _children_
       real_children.map { |child| XML.new child }
     end
 
@@ -218,7 +218,7 @@ module Traverse
       elsif @json.is_a? Array
         @json.map! { |i| JSON.new i }
       end
-      # _length_
+
       define_singleton_method "_length_" do
         @json.length
       end
