@@ -193,3 +193,7 @@ it but I want to grab its attribute named `text`???
 foo.bar['text'] # => grab bar's attribute named 'text'
 foo.bar.text # => grab bar's text contents
 ```
+
+## Contributors!
+
+- [muffs](https://github.com/muffs)
