@@ -5,11 +5,11 @@ require "traverse/version"
 Gem::Specification.new do |s|
   s.name        = "traverse"
   s.version     = Traverse::VERSION
-  s.authors     = ["happy4crazy"]
+  s.authors     = ["happy4crazy", "muffs"]
   s.email       = ["alan.m.odonnell@gmail.com"]
   s.homepage    = "https://github.com/happy4crazy/traverse"
-  s.summary     = %q{Easily traverse an XML document.}
-  s.description = %q{Easily traverse an XML document.}
+  s.summary     = %q{Easily traverse XML and JSON.}
+  s.description = %q{Easily traverse XML and JSON.}
 
   s.rubyforge_project = "traverse"
 
