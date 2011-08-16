@@ -2,7 +2,6 @@ require "traverse/version"
 require 'nokogiri'
 require 'yajl'
 require 'active_support/inflector'
-require 'yajl'
 
 module Traverse
   class Document
