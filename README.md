@@ -6,15 +6,15 @@ gem install traverse
 
 ## Introduction
 
-Traverse is a simple tool that makes it easy to traverse XML & JSON. 
+Traverse is a simple tool that makes it easy to traverse XML and JSON.
 
-### XML
-
-Let's say you're messing around with Twitter's
+Let's say you're messing around with Twitter's XML
 [public timeline](http://api.twitter.com/statuses/public_timeline.xml).
 Traverse let's you do things like this:
  
 ```ruby
+require 'open-uri'
+
 timeline = Traverse::Document.new(open "http://api.twitter.com/statuses/public_timeline.xml")
 
 timeline.statuses.each do |status|
@@ -22,33 +22,17 @@ timeline.statuses.each do |status|
 end
 ```
 
-### JSON
-Let's say you're foolin' with [Spotify's Search API](http://ws.spotify.com/search/1/track.json?q=like+a+virgin).
-Traverse makes it easy to do super cool things:
+Or, let's say you're foolin' with Spotify's JSON [Search
+API](http://ws.spotify.com/search/1/track.json?q=like+a+virgin).
 
 ```ruby
-search = Traverse::JSON.new(open "http://ws.spotify.com/search/1/track.json?q=like+a+virgin")
+search = Traverse::Document.new(open "http://ws.spotify.com/search/1/track.json?q=like+a+virgin")
 
 search.tracks.each do |track|
   puts "Track: #{track.name}"
   puts "Album: #{track.album.name}"
 end
 ```
-
-### Helper methods
-Traverse provides a few helper methods to help with traversal.
-
-If you are traversing some JSON, ```_keys_``` will be available.
-
-```ruby
-search._keys_.count
-# =>  20
-
-search.first._keys_
-# =>  ["user","favorited","source","id","text","created_at"]
-```
-
-### Examples
 
 For a slightly more complicated example, take a look at a
 [boxscore](http://gd2.mlb.com/components/game/mlb/year_2011/month_03/day_31/gid_2011_03_31_detmlb_nyamlb_1/boxscore.xml)
@@ -57,8 +41,6 @@ pulled from Major League Baseball's public API.
 ```ruby
 url = "http://gd2.mlb.com/components/game/mlb/year_2011/month_03/day_31/gid_2011_03_31_detmlb_nyamlb_1/boxscore.xml"
 boxscore = Traverse::Document.new(open url)
-
-# let's start traversing!
 
 boxscore.game_id # => '2011/03/31/detmlb-nyamlb-1'
 
@@ -73,7 +55,7 @@ boxscore.pitchings.find do |pitching|
 end.out # => '24'
 ```
 
-## Traverse's API
+## Traverse's XML API
 
 When in doubt, check the spec file.
 
@@ -194,6 +176,36 @@ foo.bar['text'] # => grab bar's attribute named 'text'
 foo.bar.text # => grab bar's text contents
 ```
 
+## Traverse's JSON API
+
+Again, when in doubt, check the spec file.
+
+Traverse doesn't really do anything magical with JSON data; under the hood, it
+uses `YAJL` to parse JSON into a `Hash`, and hashes are alredy pretty
+traversable in Ruby. But, to maintain consistency with the XML API, you can
+happily traverse JSON using method calls instead of querying a hash.
+
+## Helper methods
+Traverse provides a few helper methods to help with traversal.
+
+If you're traversing some JSON, the ```_keys_``` method will be available. It
+returns an array containing the names of the JSON object's keys.
+
+```ruby
+search._keys_.count
+# =>  2
+
+search.first._keys_
+# =>  ["user","favorited","source","id","text","created_at"]
+```
+
+If you're looking at XML, the ```_children_``` and ```_attributes_``` methods
+will be available. The ```_children_``` method gives you an array of
+traversable child nodes, and ```_attributes_``` gives you a hash of
+attribute-name/attribute-value pairs.
+
 ## Contributors!
+
+Traverse wouldn't be possible without help from friends. Thanks!
 
 - [muffs](https://github.com/muffs)
