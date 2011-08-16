@@ -225,7 +225,6 @@ module Traverse
     end
 
     private
-      # Overload method_missing, pass method to super
       def method_missing m, *args, &block
         if @proxy
           @proxy.send m, *args, &block
